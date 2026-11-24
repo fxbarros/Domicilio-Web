@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Domicílio — painel local</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="barra">
+    <div class="marca">
+      <span class="logo" aria-hidden="true">⚖</span>
+      <div>
+        <strong>Comunicações processuais</strong>
+        <small>Painel local, somente leitura, sobre a API do Domicílio Judicial Eletrônico</small>
+      </div>
+    </div>
+    <div class="usuario">
+      <span id="pessoa">—</span>
+      <span id="token" class="pilula">token —</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="aviso" id="aviso" hidden></section>
+
+    <section class="linha-perfil">
+      <label>Perfil
+        <select id="perfil"></select>
+      </label>
+      <p class="trava">🔒 Este painel não abre o inteiro teor nem dá ciência. Para isso, use o portal oficial.</p>
+    </section>
+
+    <section class="cartoes">
+      <article class="cartao curso">
+        <span class="rotulo">Prazos em curso</span>
+        <span class="valor" id="emCurso">—</span>
+        <small id="emCursoGeral"></small>
+      </article>
+      <article class="cartao encerrado">
+        <span class="rotulo">Prazos encerrados</span>
+        <span class="valor" id="encerrados">—</span>
+        <small>no período filtrado</small>
+      </article>
+      <article class="cartao total">
+        <span class="rotulo">Comunicações no período</span>
+        <span class="valor" id="total">—</span>
+        <small id="consultado"></small>
+      </article>
+    </section>
+
+    <form class="filtros" id="filtros">
+      <label>Data inicial <input type="date" id="inicio" required></label>
+      <label>Data final <input type="date" id="fim" required></label>
+      <label>Ciência
+        <select id="situacao">
+          <option value="todas">Ambas</option>
+          <option value="nao_lidas">Sem ciência</option>
+          <option value="lidas">Com ciência</option>
+        </select>
+      </label>
+      <label>Tipo de comunicação
+        <select id="tipo"><option value="">Todos</option></select>
+      </label>
+      <label>Tribunal de origem
+        <select id="tribunal"><option value="">Todos</option></select>
+      </label>
+      <label>Prazo
+        <select id="prazo">
+          <option value="">Todos</option>
+          <option value="curso">Em curso</option>
+          <option value="encerrado">Encerrado</option>
+        </select>
+      </label>
+      <label class="largo">Nº do processo, assunto ou parte
+        <input type="search" id="busca" placeholder="0000000-00.0000.8.18.0140, nome, assunto…">
+      </label>
+      <div class="botoes">
+        <button type="submit" class="primario">Pesquisar</button>
+        <button type="button" id="recarregar" title="Ignora o cache de 5 min">Atualizar</button>
+        <button type="button" id="exportar">Exportar .xlsx</button>
+      </div>
+    </form>
+
+    <section class="tabela-wrap">
+      <table id="grid">
+        <thead>
+          <tr>
+            <th data-ord="processoFormatado">Nº do processo</th>
+            <th data-ord="assunto">Assunto</th>
+            <th data-ord="tipoComunicacao">Tipo de comunicação</th>
+            <th data-ord="dataComunicacao">Disponibilização</th>
+            <th data-ord="dataFinalCiencia">Data final da ciência</th>
+            <th data-ord="situacao">Forma de ciência</th>
+            <th data-ord="tipoIntimacao">Tipo de intimação</th>
+            <th data-ord="siglaTribunal">Tribunal</th>
+            <th data-ord="numeroProcessoAntigo">Nº antigo</th>
+            <th>Detalhamento</th>
+            <th>Inteiro teor</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <p id="vazio" class="vazio" hidden></p>
+    </section>
+
+    <nav class="paginacao">
+      <label>Itens por página
+        <select id="tamanho"><option>10</option><option selected>25</option><option>50</option><option>100</option></select>
+      </label>
+      <span id="faixa"></span>
+      <button type="button" id="ant" aria-label="Página anterior">‹</button>
+      <button type="button" id="prox" aria-label="Próxima página">›</button>
+    </nav>
+  </main>
+
+  <dialog id="detalhe">
+    <header>
+      <h2 id="dTitulo">Detalhamento</h2>
+      <button type="button" class="fechar" id="dFechar" aria-label="Fechar">✕</button>
+    </header>
+    <nav class="abas">
+      <button type="button" data-aba="dados" class="ativa">Dados da comunicação</button>
+      <button type="button" data-aba="partes">Partes</button>
+      <button type="button" data-aba="auditoria">Log de auditoria</button>
+    </nav>
+    <div class="conteudo">
+      <div data-painel="dados"></div>
+      <div data-painel="partes" hidden></div>
+      <div data-painel="auditoria" hidden></div>
+    </div>
+  </dialog>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
