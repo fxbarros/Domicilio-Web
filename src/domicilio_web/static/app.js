@@ -4,9 +4,14 @@
 const $ = (s) => document.querySelector(s);
 const estado = { itens: [], filtrados: [], pagina: 0, ord: "dataFinalCiencia", asc: true, perfil: null, dados: null };
 
+// Instantes com fuso ("Z") vêm em UTC: exibe em Brasília. Datas puras (AAAA-MM-DD) ficam como estão.
 const fmtData = (v) => {
   if (!v) return "—";
   const s = String(v);
+  if (/^\d{4}-\d{2}-\d{2}T.*(Z|[+-]\d{2}:?\d{2})$/.test(s)) {
+    const d = new Date(s);
+    if (!isNaN(d)) return d.toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }).replace(",", "");
+  }
   const m = s.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/);
   if (!m) return s;
   return `${m[3]}/${m[2]}/${m[1]}` + (m[4] ? ` ${m[4]}:${m[5]}` : "");
@@ -193,7 +198,8 @@ function itemLog(l) {
   const [chave, titulo] = TITULOS_LOG.find(([k]) => p[k] != null) || [null, "Evento"];
   const quando = chave && typeof p[chave] === "string" ? p[chave] : l.criadoEm;
   const extra = chave === "mudancas" ? `<small>${esc(JSON.stringify(p.mudancas))}</small>` : "";
-  return `<li><strong>${esc(titulo)}</strong>${fmtData(quando)}<br><small>registrado por ${esc(l.criadoPor || "—")}</small>${extra}</li>`;
+  const trib = chave === "ciencia" && p.foiTribunal ? " (informada pelo tribunal)" : "";
+  return `<li><strong>${esc(titulo)}${trib}</strong>${fmtData(quando)}<br><small>registrado por ${esc(l.criadoPor || "—")}</small>${extra}</li>`;
 }
 
 async function detalhar(i) {
@@ -226,7 +232,8 @@ async function detalhar(i) {
   try {
     const q = new URLSearchParams({ tenant: estado.perfil, processo: i.numeroProcesso, comunicacao: i.numeroComunicacao });
     const logs = await api(`/api/logs?${q}`);
-    logs.sort((a, b) => String(a.criadoEm).localeCompare(String(b.criadoEm)));
+    const instante = (l) => { const p = l.payload || {}; const k = TITULOS_LOG.find(([c]) => typeof p[c] === "string"); return new Date(k ? p[k[0]] : l.criadoEm).getTime() || 0; };
+    logs.sort((a, b) => instante(a) - instante(b));
     aud.innerHTML = logs.length ? `<ol class="linha-tempo">${logs.map(itemLog).join("")}</ol>` : "<p>Sem registros.</p>";
   } catch (e) {
     aud.innerHTML = `<p class="aviso">${esc(e.message)}</p>`;

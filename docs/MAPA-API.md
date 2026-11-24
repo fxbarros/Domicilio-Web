@@ -49,6 +49,12 @@ Resposta do grid: `grid[]` (cerca de 70 campos por comunicação), `totalEmCurso
 vêm como `"S"`/`"N"` (`urgente`, `tutelaUrgencia`); `valorCausa` vem como texto
 no formato `10.739,08`.
 
+Sem `numeroComunicacao`, o log traz os eventos de todas as comunicações do processo
+(paginado por `size`/`page`). Instantes com `Z` são UTC: as ciências por decurso caem às
+23:59:59 de Brasília. O `criadoEm` de algumas contas de serviço vem deslocado em 3 h e não
+serve como horário do fato. Na ciência, `foiTribunal: true` indica ciência informada pelo
+sistema do tribunal.
+
 Eventos do log de auditoria (`payload`): `comunicacaoDisponibilizada`,
 `ciencia`, `comunicacaoCancelada`, `expiradaEm`, `obtidoEm` ("Link Obtido") e
 `mudancas` (data final de ciência alterada).
